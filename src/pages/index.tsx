@@ -4,7 +4,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 const Container = styled.div`
-  margin: 2rem auto;
+  margin: 0 auto;
   max-width: 80%;
 `;
 
@@ -41,7 +41,7 @@ const getStaticProps: GetStaticProps<Props> = () => {
     props: {
       date: new Date().toISOString(),
     },
-    unstable_revalidate: 60 * 5,
+    revalidate: 60 * 5,
   });
 };
 

@@ -1,9 +1,15 @@
+import { PrismaClient } from '@prisma/client';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-type Data = {
-  name: string;
-};
+// const sleep = (time: number) => new Promise(resolve => setTimeout(resolve, time));
 
-export default (_req: NextApiRequest, res: NextApiResponse<Data>): void => {
-  res.status(200).json({ name: 'John Doe' });
+const prisma = new PrismaClient();
+
+export default async (_req: NextApiRequest, res: NextApiResponse): Promise<void> => {
+  const data = await prisma.product.findMany();
+
+  // Artificially delay the request.
+  // await sleep(1000);
+
+  res.status(200).json(data);
 };
