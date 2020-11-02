@@ -1,22 +1,24 @@
 import './styles.scss';
+import { Product } from '@prisma/client';
 import { AppProps } from 'next/app';
 import React from 'react';
-import { RecoilRoot } from 'recoil';
+import { MutableSnapshot, RecoilRoot } from 'recoil';
 import { ThemeProvider } from 'styled-components';
 import { Navigation } from '../app';
+import { productList } from '../atoms/products';
+import { theme } from '../styled/theme';
 
-const theme = {
-  breakpoints: {
-    /* eslint-disable sort-keys */
-    sm: 568,
-    md: 678,
-    /* eslint-enable sort-keys */
-  },
+const initializeState = (pageProps: {
+  products?: Product[];
+}) => ({ set }: MutableSnapshot) => {
+  if (pageProps.products) {
+    set(productList, pageProps.products);
+  }
 };
 
 function App({ Component, pageProps }: AppProps): JSX.Element {
   return (
-    <RecoilRoot>
+    <RecoilRoot initializeState={initializeState(pageProps)}>
       <ThemeProvider theme={theme}>
         <Navigation />
         <Component {...pageProps} />

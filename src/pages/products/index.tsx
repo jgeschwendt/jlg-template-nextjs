@@ -1,5 +1,6 @@
+import { Box, Flex } from '@jlg/styled-components';
 import { Product } from '@prisma/client';
-import { GetStaticProps } from 'next';
+import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import React, { Fragment } from 'react';
 import { fetchProducts } from '../../services/api';
@@ -17,29 +18,31 @@ const Products = (props: Props): JSX.Element => {
       </Head>
 
       <main>
-        <h1>Products Listing</h1>
-        <ul>
-        {
-          props.products.map((product, key) => (
-            <pre key={key}>{JSON.stringify(product, null, 2)}</pre>
-          ))
-        }
-        </ul>
+          <Flex flexWrap="wrap">
+          {
+            props.products.map((product, key) => (
+              <Box key={key}>
+                <pre>{
+                  JSON.stringify(product, null, 2)
+                }</pre>
+              </Box>
+            ))
+          }
+          </Flex>
       </main>
     </Fragment>
   );
 };
 
-const getStaticProps: GetStaticProps<Props> = async () => {
+const getServerSideProps: GetServerSideProps<Props> = async () => {
   return {
     props: {
       products: await fetchProducts({}),
     },
-    revalidate: 60 * 5,
   };
 };
 
 export {
   Products as default,
-  getStaticProps,
+  getServerSideProps,
 };

@@ -8,8 +8,12 @@
     "start": "next start"
   },
   "dependencies": {
+    "@babel/runtime": "7.11.2",
+    "@jlg/styled-components": "jgeschwendt/jlg#commit=9614c4ccbf34a4c80dc3fe5eff21eaa7e106dd09&workspace=@jlg/styled-components",
+    "@jlg/styled-media": "jgeschwendt/jlg#commit=9614c4ccbf34a4c80dc3fe5eff21eaa7e106dd09&workspace=@jlg/styled-media",
     "@prisma/client": "2.7.1",
     "bootstrap": "v5.0.0-alpha1",
+    "core-js": "3.6.5",
     "faker": "5.1.0",
     "framer": "1.2.7",
     "framer-motion": "2.7.5",

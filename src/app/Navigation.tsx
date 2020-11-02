@@ -3,6 +3,7 @@ import Link from 'next/link';
 import React, { useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Brand } from '../components';
+import { useOnOutside } from '../hooks/useOnOutsideEvents';
 
 const Nav = styled(motion.nav)`
   align-items: center;
@@ -92,15 +93,11 @@ const Toggle = styled.div`
   }
 `;
 
-// eslint-disable-next-line react/display-name
-const BrandIcon = React.forwardRef<SVGSVGElement>((props, ref): JSX.Element => (
-  <Brand ref={ref} {...props} />
-));
-
 export const Navigation = (): JSX.Element => {
   const controls = useAnimation();
   const mobile = useRef(typeof window !== 'undefined' ? !matchMedia('(min-width: 600px)').matches : false);
   const open = useRef(false);
+  const ref = useRef(null);
 
   const onToggle = useCallback(() => {
     open.current = !open.current;
@@ -117,6 +114,16 @@ export const Navigation = (): JSX.Element => {
     }
 
   }, [controls]);
+
+  useOnOutside([
+    'mousedown',
+    'touchstart',
+  ], ref, () => {
+    if (open.current && mobile.current) {
+      open.current = false;
+      void controls.start({ x: '100%' });
+    }
+  });
 
   useEffect(() => {
     if (mobile.current) {
@@ -150,17 +157,19 @@ export const Navigation = (): JSX.Element => {
     <Nav>
       <BrandLogo>
         <Link href="/">
-          <BrandIcon />
+          <div>
+            <Brand />
+          </div>
         </Link>
       </BrandLogo>
-      <Menu animate={controls} initial={false}>
+      <Menu animate={controls} initial={false} ref={ref}>
         <MenuContainer>
           <MenuList>
             <Toggle onClick={onToggle}>&times;</Toggle>
             <Link href="/products">
               <MenuItem onClick={onSwitchOff}>Products (Next)</MenuItem>
             </Link>
-            <Link href="/products/recoil">
+            <Link href="/products/recoil" prefetch={false}>
               <MenuItem onClick={onSwitchOff}>Products (Recoil)</MenuItem>
             </Link>
             <Link href="https://google.com" passHref={true}>
@@ -173,5 +182,3 @@ export const Navigation = (): JSX.Element => {
     </Nav>
   );
 };
-
-// A great cooking ingredient for sauces, soups and stews. Also, strips waxed floors and removes driveway grease stains. Enjoy!

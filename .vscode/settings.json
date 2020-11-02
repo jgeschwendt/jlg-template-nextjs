@@ -1,4 +1,7 @@
 {
+  "[json]": {
+    "editor.wordWrap": "off",
+  },
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
