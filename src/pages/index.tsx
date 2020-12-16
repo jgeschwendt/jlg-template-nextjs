@@ -1,19 +1,21 @@
-import { GetStaticProps } from 'next';
-import Head from 'next/head';
-import React from 'react';
-import styled from 'styled-components';
+import styled from "@emotion/styled";
+import type { GetStaticProps } from "next";
+import Head from "next/head";
+import { useEffect, useState } from "react";
 
 const Container = styled.div`
   margin: 0 auto;
   max-width: 80%;
 `;
 
-type Props = { date: string };
+type Props = Readonly<{
+  date: string;
+}>;
 
 const Home = (props: Props): JSX.Element => {
-  const [date, updateDate] = React.useState<string | null>(null);
+  const [date, updateDate] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     updateDate(new Date().toISOString());
   }, []);
 
@@ -36,14 +38,13 @@ const Home = (props: Props): JSX.Element => {
   );
 };
 
-const getStaticProps: GetStaticProps<Props> = () => {
-  return Promise.resolve({
-    props: {
-      date: new Date().toISOString(),
-    },
-    revalidate: 60 * 5,
-  });
-};
+const getStaticProps: GetStaticProps<Props> = async () => Promise.resolve({
+  props: {
+    date: new Date().toISOString(),
+  },
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- revalidate after 5 minutes
+  revalidate: 60 * 5,
+});
 
 export {
   Home as default,

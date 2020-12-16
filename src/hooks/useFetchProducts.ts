@@ -1,26 +1,28 @@
-import { Product } from "@prisma/client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRecoilState } from "recoil";
+import type { Product } from "../atoms/products";
 import { productList } from "../atoms/products";
 import { fetchProducts } from "../services/api";
 
-type Query = {
+const isAbortError = (error: Readonly<Error>): boolean => error.name === "AbortError";
+
+type Query = Readonly<{
   default?: Product[];
   skipInitial?: boolean;
   limit?: number;
-};
+}>;
 
-const isAbortError = (error: Error) => error.name === 'AbortError';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function useFetchProducts(query?: Query): {
-  data: Product[];
-  errors: Error[];
-  loading: boolean;
-  reload: (query?: Query) => void;
-} {
+// eslint-disable-next-line max-lines-per-function -- meh
+export const useFetchProducts = ({
+  skipInitial = false,
+}: Query): {
+    data: Product[];
+    errors: Error[];
+    loading: boolean;
+    reload: (query?: Query) => void;
+  } => {
   const [data, setData] = useRecoilState(productList);
-  const [errors, setErrors] = useState([]);
+  const [errors, setErrors] = useState<Error[]>([]);
   const [loading, setLoading] = useState(false);
 
   const loadingRef = useRef(loading);
@@ -28,33 +30,33 @@ export function useFetchProducts(query?: Query): {
   const runEffect = useCallback(() => {
     const abortController = new AbortController();
 
-    void (async () => {
+    void (async (): Promise<void> => {
       try {
-        setLoading?.(true);
+        setLoading(true);
         setData(await fetchProducts({ signal: abortController.signal }));
-        setLoading?.(false);
+        setLoading(false);
       } catch (error) {
         if (!isAbortError(error)) {
           setErrors([error]);
-          setLoading?.(false);
+          setLoading(false);
         }
       }
     })();
 
-    return () => {
+    return (): void => {
       abortController.abort();
     };
-  }, []);
+  }, [setData]);
 
   useEffect(() => {
     loadingRef.current = loading;
   }, [loading]);
 
   useEffect(() => {
-    if (!loadingRef.current && !query?.skipInitial) {
-      return runEffect();
+    if (!loadingRef.current && !skipInitial) {
+      runEffect();
     }
-  }, []);
+  }, [skipInitial, runEffect]);
 
   return {
     data,
@@ -62,8 +64,8 @@ export function useFetchProducts(query?: Query): {
     loading,
     reload: useCallback(() => {
       if (!loadingRef.current) {
-        return runEffect();
+        runEffect();
       }
-    }, []),
+    }, [runEffect]),
   };
-}
+};

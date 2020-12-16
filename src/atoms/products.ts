@@ -1,8 +1,11 @@
-import { Product } from "@prisma/client";
 import { atom } from "recoil";
 
+export type Product = {
+  id: number;
+};
+
 export const productList = atom<Product[]>({
-  key: 'product-list',
-  // eslint-disable-next-line sort-keys
+  key: "products",
+  // eslint-disable-next-line sort-keys -- metadata break
   default: [],
 });

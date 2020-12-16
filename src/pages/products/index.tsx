@@ -1,46 +1,42 @@
-import { Box, Flex } from '@jlg/styled-components';
-import { Product } from '@prisma/client';
-import { GetServerSideProps } from 'next';
-import Head from 'next/head';
-import React, { Fragment } from 'react';
-import { fetchProducts } from '../../services/api';
+import styled from "@emotion/styled";
+import type { GetServerSideProps } from "next";
+import Head from "next/head";
+import React, { Fragment } from "react";
+import { fetchProducts } from "../../services/api";
 
-type Props = {
-  products: Product[];
-};
+type Props = Readonly<{
+  products: Readonly<unknown[]>;
+}>;
 
-const Products = (props: Props): JSX.Element => {
-  return (
-    <Fragment>
-      <Head>
-        <title>Products Listing</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+const Flex = styled.div<{ flexWrap?: string }>``;
+const Box = styled.div``;
 
-      <main>
-          <Flex flexWrap="wrap">
-          {
-            props.products.map((product, key) => (
-              <Box key={key}>
-                <pre>{
-                  JSON.stringify(product, null, 2)
-                }</pre>
-              </Box>
-            ))
-          }
-          </Flex>
-      </main>
-    </Fragment>
-  );
-};
+const Products = (props: Props): JSX.Element => (
+  <Fragment>
+    <Head>
+      <title>Products Listing</title>
+      <link rel="icon" href="/favicon.ico" />
+    </Head>
 
-const getServerSideProps: GetServerSideProps<Props> = async () => {
-  return {
-    props: {
-      products: await fetchProducts({}),
-    },
-  };
-};
+    <main>
+      <Flex flexWrap="wrap">
+        {
+          props.products.map((product, key) => <Box key={key}>
+            <pre>{
+              JSON.stringify(product, null, 2)
+            }</pre>
+          </Box>)
+        }
+      </Flex>
+    </main>
+  </Fragment>
+);
+
+const getServerSideProps: GetServerSideProps<Props> = async () => ({
+  props: {
+    products: await fetchProducts({}),
+  },
+});
 
 export {
   Products as default,

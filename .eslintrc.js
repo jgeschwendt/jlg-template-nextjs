@@ -1,82 +1,160 @@
+"use strict";
+
+const ecmaVersion = 2019;
+
+const AllowedOneCharacterVariables = [
+  "a", "b", "i", "j", "k", "x", "y", "z",
+];
+
+const ReactMagicNumbers = [
+  // eslint-disable-next-line no-magic-numbers -- grid options
+  0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+];
+
 module.exports = {
-  "env": {
-    "browser": true,
-    "jest": true,
-    "node": true,
-  },
-  "extends": [
-    "eslint:recommended",
-    "plugin:eslint-comments/recommended",
-    "plugin:import/errors",
-    "plugin:import/warnings",
+  extends: [
+    "@eslint-calibrate",
+    "plugin:@eslint-calibrate/calibrate",
   ],
-  "overrides": [{
-    "extends": [
-      "plugin:react/recommended",
-      "plugin:react-hooks/recommended",
-    ],
-    "files": ["*.jsx", "*.tsx"],
-  }, {
-    "extends": [
-      "plugin:@typescript-eslint/eslint-recommended",
-      "plugin:@typescript-eslint/recommended",
-      "plugin:@typescript-eslint/recommended-requiring-type-checking",
-      "plugin:import/typescript",
-    ],
-    "files": ["*.ts", "*.tsx"],
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-      "project": "./tsconfig.json",
-    },
-    "plugins": [
-      "@typescript-eslint/eslint-plugin",
-    ],
-    "rules": {
-      "@typescript-eslint/member-delimiter-style": "error",
-
-      // Disable default eslint "semi" rule.
-      "semi": "off",
-      // eslint-disable-next-line sort-keys
-      "@typescript-eslint/semi": "error",
-    },
-  }, {
-    "extends": [
-      "plugin:jest/recommended",
-    ],
-    "files": [
-      "*.test.js",
-      "*.test.jsx",
-      "*.test.ts",
-      "*.test.tsx",
-    ],
-  }],
-  "plugins": [
-    "import",
+  ignorePatterns: [
+    "next-env.d.ts",
   ],
-  "rules": {
-    "comma-dangle": ['error', "always-multiline"],
-    "sort-imports": ["error", {
-      // import/order handle this instead.
-      "ignoreDeclarationSort": true,
-    }],
-    "sort-keys": ["error"],
-
-    // eslint-plugin-import
-    // eslint-disable-next-line sort-keys
-    "import/order": ["error", {
-      "alphabetize": {
-        "caseInsensitive": false,
-        "order": "asc",
+  overrides: [
+    // Language — MDX
+    {
+      extends: [
+        "plugin:mdx/recommended",
+      ],
+      files: [
+        "*.md",
+        "*.mdx",
+      ],
+      rules: {
+        "import/unambiguous": "off",
       },
-      "groups": [["builtin", "external"], "index", "sibling", "parent"],
-    }],
+    },
+
+    // Language — TypeScript
+    {
+      extends: [
+        "@eslint-calibrate/typescript",
+        "plugin:@eslint-calibrate/typescript",
+      ],
+      files: [
+        "*.ts",
+        "*.tsx",
+      ],
+      parserOptions: {
+        project: "./tsconfig.json",
+      },
+    },
+
+    // Environment — Next/React
+    {
+      extends: [
+        "@eslint-calibrate/react",
+      ],
+      files: [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+      ],
+      rules: {
+        "@typescript-eslint/no-magic-numbers": ["error", {
+          ignore: ReactMagicNumbers,
+        }],
+        "import/no-internal-modules": ["error", {
+          allow: [
+            "next/app",
+            "next/head",
+            "next/link",
+            "next/router",
+            "**/src/**",
+          ],
+        }],
+        "import/no-named-export": "off",
+        "import/prefer-default-export": "off",
+        "react-hooks/exhaustive-deps": ["warn", {
+          additionalHooks: "useRecoilCallback",
+        }],
+        // Not needed since React 17
+        "react/react-in-jsx-scope": "off",
+      },
+      settings: {
+        "import/extensions": [".ts", ".tsx"],
+        "react": {
+          version: "detect",
+        },
+      },
+    },
+    {
+      // Next Page exports
+      files: ["src/pages/**/*.tsx"],
+      rules: {
+        "import/no-default-export": "off",
+      },
+    },
+
+    // Environment — Jest
+    {
+      extends: [
+        "@eslint-calibrate/jest",
+      ],
+      files: [
+        "*.test.js",
+        "*.test.ts",
+        "*.test.tsx",
+      ],
+      rules: {
+        "@typescript-eslint/no-magic-numbers": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "no-magic-numbers": "off",
+      },
+    },
+
+    // Environment — Node / CommonJS
+    {
+      extends: [
+        "@eslint-calibrate/node",
+        "@eslint-calibrate/node/script",
+      ],
+      files: [
+        "scripts/**/*.js",
+        ".eslintrc.js",
+      ],
+    },
+
+    // Environment — Node / TypeScript
+    {
+      extends: [
+        "@eslint-calibrate/node",
+        "@eslint-calibrate/node/typescript",
+      ],
+      files: [
+        "scripts/**/*.ts",
+      ],
+      rules: {
+        "import/no-internal-modules": [
+          "error", {
+            "allow": ["src/**"],
+          },
+        ],
+      },
+    },
+  ],
+
+  parserOptions: {
+    ecmaFeatures: {
+      globalReturn: false,
+    },
+    ecmaVersion,
+    sourceType: "module",
   },
-  "settings": {
-    "import/parsers": {
-      "@typescript-eslint/parser": [".ts", ".tsx"],
-    },
-    "react": {
-      "version": "detect",
-    },
+  root: true,
+  rules: {
+    "id-length": ["error", {
+      exceptions: AllowedOneCharacterVariables,
+    }],
+    "import/no-relative-parent-imports": "off",
+    "no-warning-comments": "warn",
   },
 };

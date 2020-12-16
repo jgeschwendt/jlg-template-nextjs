@@ -1,9 +1,9 @@
-import { motion, useAnimation } from 'framer-motion';
-import Link from 'next/link';
-import React, { useCallback, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Brand } from '../components';
-import { useOnOutside } from '../hooks/useOnOutsideEvents';
+import styled from "@emotion/styled";
+import { motion, useAnimation } from "framer-motion";
+import Link from "next/link";
+import React, { useCallback, useEffect, useRef } from "react";
+import { Brand } from "../components";
+import { useOnOutside } from "../hooks/useOnOutside";
 
 const Nav = styled(motion.nav)`
   align-items: center;
@@ -93,9 +93,17 @@ const Toggle = styled.div`
   }
 `;
 
+const isMobile = (): boolean => {
+  if (typeof window !== "undefined") {
+    return !window.matchMedia("(min-width: 600px)").matches;
+  }
+  return false;
+};
+
+// eslint-disable-next-line max-lines-per-function -- todo
 export const Navigation = (): JSX.Element => {
   const controls = useAnimation();
-  const mobile = useRef(typeof window !== 'undefined' ? !matchMedia('(min-width: 600px)').matches : false);
+  const mobile = useRef(isMobile());
   const open = useRef(false);
   const ref = useRef(null);
 
@@ -103,53 +111,49 @@ export const Navigation = (): JSX.Element => {
     open.current = !open.current;
 
     if (mobile.current) {
-      void controls.start({ x: open.current ? '0%' : '100%' });
+      void controls.start({ x: open.current ? "0%" : "100%" });
     }
   }, [controls]);
 
   const onSwitchOff = useCallback(() => {
     if (open.current && mobile.current) {
       open.current = false;
-      void controls.start({ x: '100%' });
+      void controls.start({ x: "100%" });
     }
-
   }, [controls]);
 
   useOnOutside([
-    'mousedown',
-    'touchstart',
+    "mousedown",
+    "touchstart",
   ], ref, () => {
     if (open.current && mobile.current) {
       open.current = false;
-      void controls.start({ x: '100%' });
+      void controls.start({ x: "100%" });
     }
   });
 
   useEffect(() => {
     if (mobile.current) {
-      void controls.set({ x: open.current ? '0%' : '100%' });
+      controls.set({ x: open.current ? "0%" : "100%" });
     } else {
-      void controls.set({ x: 0 });
+      controls.set({ x: 0 });
     }
   }, [controls]);
 
   useEffect(() => {
-    const listener = () => {
-      mobile.current = (
-        typeof window !== 'undefined' ? !matchMedia('(min-width: 600px)').matches : false
-      );
-
+    const listener: EventListener = () => {
+      mobile.current = isMobile();
       if (mobile.current) {
-        void controls.set({ x: open.current ? '0%' : '100%' });
+        controls.set({ x: open.current ? "0%" : "100%" });
       } else {
-        void controls.set({ x: 0 });
+        controls.set({ x: 0 });
       }
     };
 
-    window.addEventListener('resize', listener);
+    window.addEventListener("resize", listener);
 
-    return () => {
-      window.removeEventListener('resize', listener);
+    return (): void => {
+      window.removeEventListener("resize", listener);
     };
   }, [controls]);
 
